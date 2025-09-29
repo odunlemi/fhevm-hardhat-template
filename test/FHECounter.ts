@@ -1,8 +1,8 @@
-import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
-import { ethers, fhevm } from "hardhat";
 import { FHECounter, FHECounter__factory } from "../types";
-import { expect } from "chai";
 import { FhevmType } from "@fhevm/hardhat-plugin";
+import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
+import { expect } from "chai";
+import { ethers, fhevm } from "hardhat";
 
 type Signers = {
   deployer: HardhatEthersSigner;
@@ -28,13 +28,7 @@ describe("FHECounter", function () {
     signers = { deployer: ethSigners[0], alice: ethSigners[1], bob: ethSigners[2] };
   });
 
-  beforeEach(async function () {
-    // Check whether the tests are running against an FHEVM mock environment
-    if (!fhevm.isMock) {
-      console.warn(`This hardhat test suite cannot run on Sepolia Testnet`);
-      this.skip();
-    }
-
+  beforeEach(async () => {
     ({ fheCounterContract, fheCounterContractAddress } = await deployFixture());
   });
 
@@ -92,13 +86,13 @@ describe("FHECounter", function () {
     await tx.wait();
 
     const encryptedCountAfterDec = await fheCounterContract.getCount();
-    const clearCountAfterInc = await fhevm.userDecryptEuint(
+    const clearCountAfterDec = await fhevm.userDecryptEuint(
       FhevmType.euint32,
       encryptedCountAfterDec,
       fheCounterContractAddress,
       signers.alice,
     );
 
-    expect(clearCountAfterInc).to.eq(0);
+    expect(clearCountAfterDec).to.eq(0);
   });
 });
